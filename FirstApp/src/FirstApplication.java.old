@@ -1,0 +1,42 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Random;
+
+public class FirstApplication {
+    public static void main(String[] args) {
+        // Generate a random number from 1 to 100
+        Random random = new Random();
+        int randomNumber = random.nextInt(5000) + 1;
+        System.out.println("Hello from App1. I will call app2 and ask App2 to wait for" + randomNumber);
+
+        // Call the second application's endpoint with the random number
+        String secondAppEndpoint = "http://localhost:8082/SecondApp/SecondApplication?number=" + randomNumber;
+        String response = callEndpoint(secondAppEndpoint);
+
+        // Print the response from the second application
+        System.out.println(response);
+    }
+
+    private static String callEndpoint(String endpointURL) {
+        StringBuilder responseBuilder = new StringBuilder();
+        try {
+            URL url = new URL(endpointURL);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+            reader.close();
+
+            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return responseBuilder.toString();
+    }
+}
